@@ -63,13 +63,13 @@ Generated bash
 mkdir build
 cd build
 cmake ..
-```> **Note:** The first time you run `cmake ..`, it may take a moment as it downloads the required libraries. Subsequent runs will be instantaneous.
+
+**Note:** The first time you run `cmake ..`, it may take a moment as it downloads the required libraries. Subsequent runs will be instantaneous.
 
 **3. Compile the Project**
 
 Once configuration is complete, build the executable.
 
-```bash
 cmake --build .
 
 
