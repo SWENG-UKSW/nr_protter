@@ -1,4 +1,4 @@
-# nrPlotter - numerica recipes plotter
+# nrPlotter - numerical recipes plotter
 
 ![alt text](https://img.shields.io/badge/Language-C%2B%2B17-blue.svg)
 
@@ -6,7 +6,7 @@
 
 ![alt text](https://img.shields.io/badge/Build-CMake-green.svg)
 
-nrPlotter is a cross-platform C++ application for students to complete tasks related to numerical recipes classes.
+nrPlotter is a cross-platform C++ application for UKSW students to complete tasks related to numerical recipes classes.
 
 ## Dependencies
 
