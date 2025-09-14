@@ -87,6 +87,53 @@ void mouse_button_callback(GLFWwindow* window, int button, int action,
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 void reloadTexture(GLFWwindow* window, const std::string& filename);
 
+/////////////////////////////////////////////////////////////////////////
+
+// plot to norm plot
+Vertex plot_to_normal_coords(const Vertex & v)
+{
+    return Vertex{ (v.x - plot_data.range_x_min)
+                       / (plot_data.range_x_max - plot_data.range_x_min),
+                   (v.y - plot_data.range_y_min)
+                       / (plot_data.range_y_max - plot_data.range_y_min) };
+}
+
+// norm plot to pixel
+Vertex normal_to_pixel_coords(const Vertex& n)
+{
+    return Vertex{
+        float(plot_data.pix_x - plot_data.pad_x * 2) * n.x + plot_data.pad_x,
+        float(plot_data.pix_y - plot_data.pad_y * 2) * n.y + plot_data.pad_y
+    };
+}
+
+// pix to ortho
+Vertex pixel_to_ortho_coords(const Vertex& v)
+{
+    return Vertex{ float(v.x / plot_data.pix_x) * 2.f - 1.f,
+                   float(v.y / plot_data.pix_y) * 2.f - 1.f };
+}
+
+// plot to ortho coord
+Vertex plot_to_ortho_coords(const Vertex & v)
+{
+    Vertex w = plot_to_normal_coords(v);
+    w = normal_to_pixel_coords(w);
+    return pixel_to_ortho_coords(w);
+}
+
+Vertex pixel_to_plot(const Vertex & v)
+{
+    return Vertex{ plot_data.range_x_min
+                       + float(v.x - plot_data.pad_x)
+                           / (plot_data.pix_x - plot_data.pad_x * 2)
+                           * (plot_data.range_x_max - plot_data.range_x_min),
+                   plot_data.range_y_min
+                       + (1.f
+                          - (float(v.y - plot_data.pad_y)
+                             / (plot_data.pix_y - plot_data.pad_y * 2)))
+                           * (plot_data.range_y_max - plot_data.range_y_min) };
+}
 
 /////////////////////////////////////////////////////////////////////////
 // Example of creating plot from given function
@@ -102,7 +149,8 @@ void on_key_a_pressed(GLFWwindow* window)
     plot_data.rgb[2] = 1.0;
 
     GeneratePlotFromFunc(
-        "plot.png", [](double x) { return sinf((float)x); }, 16, -PI, PI);
+        "plot.png", [](double x) { return sinf((float)x); }, 64, -PI * 2.0,
+        PI * 2.0);
     reloadTexture(window, "plot.png");
 }
 
@@ -573,25 +621,17 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         {
             // update plot resources
             {
-                float plot_x = float(xpos - plot_data.pad_x)
-                    / (plot_data.pix_x - plot_data.pad_x * 2);
-                plot_x = plot_data.range_x_min
-                    + plot_x * (plot_data.range_x_max - plot_data.range_x_min);
-
-                float plot_y = 1.f
-                    - (float(ypos - plot_data.pad_y)
-                       / (plot_data.pix_y - plot_data.pad_y * 2));
-                plot_y = plot_data.range_y_min
-                    + plot_y * (plot_data.range_y_max - plot_data.range_y_min);
-
-                plot_data.xs.push_back(plot_x);
-                plot_data.ys.push_back(plot_y);
+                Vertex v = pixel_to_plot({(float)xpos, (float)ypos});
+                plot_data.xs.push_back(v.x);
+                plot_data.ys.push_back(v.y);
             }
 
             // update rendering resources
             {
-                Vertex v = { float(xpos / plot_data.pix_x) * 2.f - 1.f,
-                             float(1.f - ypos / plot_data.pix_y) * 2.f - 1.f };
+                Vertex v = pixel_to_ortho_coords({(float)xpos, (float)ypos});
+
+                // correct y due to inverted pixel origin from glfw
+                v.y=-v.y;
                 points_->vertices.push_back(v);
 
                 updateRenderObject(points_.get());
