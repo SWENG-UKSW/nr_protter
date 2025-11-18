@@ -66,12 +66,12 @@ endif()
 
 # Since pbPlots has no CMakeLists.txt, we create our own library target for it.
 add_library(pbplots STATIC
-    ${pbplots_fetch_SOURCE_DIR}/cpp/pbPlots.cpp
-    ${pbplots_fetch_SOURCE_DIR}/cpp/supportLib.cpp
+    ${pbplots_fetch_SOURCE_DIR}/Cpp/pbPlots.cpp
+    ${pbplots_fetch_SOURCE_DIR}/Cpp/supportLib.cpp
 )
 # Make the pbplots headers available to any target that links it.
 target_include_directories(pbplots PUBLIC
-    ${pbplots_fetch_SOURCE_DIR}/cpp
+    ${pbplots_fetch_SOURCE_DIR}/Cpp
 )
 
 # --- Main Executable ---

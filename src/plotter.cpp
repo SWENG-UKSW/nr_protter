@@ -1,6 +1,7 @@
 #include "plotter.h"
 #include "supportLib.hpp"
 
+#include <cfloat>
 #include <vector>
 
 std::vector<wchar_t>* new_vec_char (const std::wstring& str)
