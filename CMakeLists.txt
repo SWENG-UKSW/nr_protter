@@ -36,19 +36,39 @@ target_include_directories(glad PUBLIC external/glad/include)
 
 # --- GLFW Dependency ---
 find_package(glfw3 3.3 QUIET)
+
 if(glfw3_FOUND)
-  message(STATUS "Found system-installed glfw3.")
-  set(GLFW_TARGET glfw3::glfw)
+    message(STATUS "Found system-installed glfw3.")
+
+    # Windows or a custom install may provide imported targets
+    if(TARGET glfw3::glfw)
+        message(STATUS "Using imported target glfw3::glfw")
+        set(GLFW_TARGET glfw3::glfw)
+
+    elseif(TARGET glfw)
+        message(STATUS "Using imported target glfw")
+        set(GLFW_TARGET glfw)
+
+    else()
+        # Ubuntu (apt) provides NO imported targets, only variables
+        message(STATUS "No imported GLFW target found; using variables (Ubuntu case)")
+        set(GLFW_TARGET ${glfw3_LIBRARIES})
+        include_directories(${glfw3_INCLUDE_DIRS})
+    endif()
+
 else()
-  message(STATUS "glfw3 not found. Fetching from GitHub...")
-  FetchContent_Declare(
-      glfw
-      GIT_REPOSITORY https://github.com/glfw/glfw.git
-      GIT_TAG        3.3.8
-  )
-  FetchContent_MakeAvailable(glfw)
-  set(GLFW_TARGET glfw)
+    message(STATUS "glfw3 not found. Fetching from GitHub...")
+    FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG        3.3.8
+    )
+    FetchContent_MakeAvailable(glfw)
+
+    # FetchContent GLFW always defines a target named 'glfw'
+    set(GLFW_TARGET glfw)
 endif()
+
 
 # --- pbPlots Dependency ---
 # This is the new, automated way to get pbPlots.
