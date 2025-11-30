@@ -372,7 +372,7 @@ bool AmendScatterPlotFromSettings(RGBABitmapImageReference *canvasReference, Sca
                         x2Ref.numberValue = x;
                         y2Ref.numberValue = y;
 
-                        success = CropLineWithinBoundary(&x1Ref, &y1Ref, 
+                        bool success = CropLineWithinBoundary(&x1Ref, &y1Ref, 
                             &x2Ref, &y2Ref, xMin, xMax, yMin, yMax);
 
                         if(success){
