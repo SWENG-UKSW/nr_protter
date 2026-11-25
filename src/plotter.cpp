@@ -481,19 +481,21 @@ bool ContinuousPlot(const std::string& filename, ScatterPlotSeries *series) {
     }
 
     StringReference *errorMessage = new StringReference();
-    bool success = false;
-
-    if (firstInLine)
-    {
-        success = DrawScatterPlotFromSettings(gimageReference, settings, errorMessage);
-    }
-    else {
-        success = AmendScatterPlotFromSettings(gimageReference, settings, errorMessage);
-    }
 
 
+    // pbPlots bug: DrawScatterPlotFromSettings / AmendScatterPlotFromSettings
+    // related to range of drawing - when the last segment
+    // lies entirely outside the axis range (e.g. a polynomial running away at
+    // the ends), they return false although the image is drawn correctly, and
+    // plot.png would not be written. So the settings are validated here with
+    // ScatterPlotFromSettingsValid, and the result of drawing is ignored.
 
-    if (success)
+    bool success = ScatterPlotFromSettingsValid(settings, errorMessage);
+    if (!success) { /* wypisz errorMessage */ return false; }
+    if (firstInLine) DrawScatterPlotFromSettings(gimageReference, settings, errorMessage);
+    else AmendScatterPlotFromSettings(gimageReference, settings, errorMessage);
+
+
     {
         std::vector<double> *pngdata = ConvertToPNG(gimageReference->image);
         WriteToFile(pngdata, filename);
